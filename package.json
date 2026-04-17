@@ -1,0 +1,21 @@
+{
+  "name": "youtube-playlist-plugin",
+  "version": "1.0.0",
+  "scripts": {
+    "copy-files": "if [ -d dist ]; then rm -rf dist; fi && mkdir -p dist && cp -r public/* dist/.",
+    "dev": "npm run copy-files && trap 'kill 0' EXIT; web-ext run --source-dir=dist & tsc --watch",
+    "build": "npm run copy-files && tsc",
+    "check": "prettier --check . && tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "prettier": "^3.8.3",
+    "web-ext": "^10.1.0"
+  },
+  "dependencies": {
+    "typescript": "^6.0.3"
+  }
+}
