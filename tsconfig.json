@@ -2,24 +2,13 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
-    "module": "es2020",
-    "target": "es2020",
+    "module": "es2022",
+    "target": "es2022",
 
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
 
     "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
-
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-
-    "strict": true,
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
-    "skipLibCheck": true
+    "strict": true
   },
   "include": ["src"]
 }

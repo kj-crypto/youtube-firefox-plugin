@@ -12,5 +12,11 @@ It can be activate and deactivate by user.
 
 ## Installation
 
-- Install dependencies `npm install`
 <!-- TODO: add installation guide -->
+
+- Install dependencies `npm install --ignore-scripts`
+
+## Development
+
+- Install dev dependencies `npm install`
+- Run `npm run dev`
