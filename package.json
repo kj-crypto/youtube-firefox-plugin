@@ -1,10 +1,11 @@
 {
   "name": "youtube-playlist-plugin",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "postinstall": "R=firefox-dev; out=firefox.tar.gz; mkdir -p $R && rm -rf $R/* && mkdir -p $R/profile && wget -O $R/$out 'https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=en-US' && cd $R && tar -xvf $out && rm $out && cd - ",
-    "dev": "trap 'kill 0' EXIT; mkdir -p dist; (o=''; while true; do n=$(find public/* -printf '%T@' | sha1sum); ([ \"$n\" != \"$o\" ] && cp -r public/* dist/.); o=$n; sleep 0.2; done) & tsc --watch & while ! [ -f ./dist/manifest.json ]; do :; done; web-ext run --verbose --reload --devtools -p ./firefox-dev/profile -f ./firefox-dev/firefox/firefox -s ./dist",
-    "build": "mkdir -p dist && rm -rf dist/* && cp -r public/* dist/. && tsc",
+    "build": "mkdir -p dist && rm -rf dist/* && vite build",
+    "dev": "trap 'kill 0' EXIT; vite build --watch & while ! [ -f ./dist/manifest.json ]; do :; done; web-ext run --verbose --reload --devtools -p ./firefox-dev/profile -f ./firefox-dev/firefox/firefox -s ./dist",
     "check": "tsc --noEmit && prettier --check .",
     "fix": "eslint --no-config-lookup --ext '.ts' --fix . && prettier --write ."
   },
@@ -13,9 +14,12 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "eslint": "^9.39.4",
+    "@types/firefox-webext-browser": "^143.0.0",
+    "eslint": "^10.2.1",
     "prettier": "^3.8.3",
     "typescript": "^6.0.3",
+    "vite": "^8.0.8",
+    "vite-plugin-checker": "^0.13.0",
     "web-ext": "^10.1.0"
   }
 }

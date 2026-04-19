@@ -1,14 +1,12 @@
 {
   "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./dist",
     "module": "es2022",
     "target": "es2022",
-
-    "moduleResolution": "bundler",
-
-    "sourceMap": true,
-    "strict": true
+    "noEmit": true,
+    "strict": true,
+    "lib": ["es2022", "DOM"],
+    "skipLibCheck": true,
+    "types": ["firefox-webext-browser"]
   },
-  "include": ["src"]
+  "exclude": ["node_modules"]
 }
