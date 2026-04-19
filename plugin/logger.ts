@@ -1,9 +1,24 @@
 /**
  * Logger class for logging messages to the console
  */
-export class Logger {
+
+export interface ILogger {
+  info(msg: string): void;
+  error(msg: string): void;
+}
+
+export class DefaultLogger implements ILogger {
+  info(msg: string) {
+    console.log(msg);
+  }
+  error(msg: string) {
+    console.error(msg);
+  }
+}
+
+export class Logger implements ILogger {
   private prefix: string;
-  constructor(prefix: string = '[static-bundler - xx] - ') {
+  constructor(prefix: string = '[static-bundler]') {
     this.prefix = prefix;
   }
   private processMessage(msg: string, prefix: string, textColor: Color) {
