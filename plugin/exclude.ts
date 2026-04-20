@@ -14,29 +14,22 @@ export class ExcludePattern {
   private pattern: string;
   private readonly defaultPattern = String.raw`'.*\.\(ts\|js\)$'`;
   private logger: ILogger;
-  constructor(extensions?: string[], options?: ExcludePatternOptions) {
-    if (options?.logger) {
-      this.logger = options.logger;
-    } else {
-      this.logger = new DefaultLogger();
-    }
-    this.pattern = this.parseExtensions(extensions);
-  }
-  setLogger(logger: ILogger) {
-    this.logger = logger;
+  constructor(patterns?: string[], options?: ExcludePatternOptions) {
+    this.logger = options?.logger || new DefaultLogger();
+    this.pattern = this.prepareForFind(patterns);
   }
 
-  private parseExtensions(extensions?: string[]): string {
-    if (!extensions || extensions.length === 0) {
+  private prepareForFind(patterns?: string[]): string {
+    if (!patterns || patterns.length === 0) {
       return this.defaultPattern;
     }
-    let result = String.raw`'.*\.\(`;
-    for (const ext of extensions) {
-      const extName = /\.?\*?(\w+)$/.exec(ext)?.[1];
-      if (extName) {
-        result += extName + String.raw`\|`;
+    let result = String.raw`'.*\(`;
+    for (const pattern of patterns) {
+      const findItems = /\*?([a-zA-Z0-9_\-\/]*\.?[a-zA-Z0-9_\-\/]+)$/.exec(pattern)?.[1];
+      if (findItems) {
+        result += findItems.replace('.', String.raw`\.`) + String.raw`\|`;
       } else {
-        this.logger.error(`Cannot handle extension: ${ext}`);
+        this.logger.error(`Cannot handle pattern: ${pattern}`);
       }
     }
     result = result.slice(0, -2) + String.raw`\)$'`;

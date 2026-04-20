@@ -36,8 +36,11 @@ function testExcludePattern() {
   let excludePattern = new ExcludePattern();
   test(target);
 
-  target = String.raw`'.*\.\(html\|json\|ts\)$'`;
+  target = String.raw`'.*\(\.html\|\.json\|ts\)$'`;
   excludePattern = new ExcludePattern(['.html', '*.json', 'ts']);
+  test(target);
+  target = String.raw`'.*\(ts\|scripts/styles\.css\)$'`;
+  excludePattern = new ExcludePattern([' ts', 'scripts/styles.css']);
   test(target);
 }
 
