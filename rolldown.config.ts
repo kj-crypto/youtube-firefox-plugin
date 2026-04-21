@@ -1,7 +1,7 @@
-import { defineConfig, RolldownPlugin } from 'rolldown';
+import { defineConfig, type RolldownPlugin, type RolldownOptions, type OutputOptions } from 'rolldown';
 import { staticsDetector } from './plugin/static_detector';
 
-export default defineConfig(() => {
+export default defineConfig((_): RolldownOptions[] => {
   const isWatch = process.argv.includes('--watch');
   const outputOptions = {
     sourcemap: isWatch ? 'inline' : false,
@@ -23,7 +23,7 @@ export default defineConfig(() => {
         file: 'dist/background.js',
         format: 'esm',
         ...outputOptions,
-      },
+      } as OutputOptions,
     },
     {
       plugins: [inlineCssPlugin()],
@@ -32,7 +32,15 @@ export default defineConfig(() => {
         file: 'dist/injection_script.js',
         format: 'iife',
         ...outputOptions,
-      },
+      } as OutputOptions,
+    },
+    {
+      input: 'src/menu/menu.ts',
+      output: {
+        file: 'dist/menu/menu.js',
+        format: 'esm',
+        ...outputOptions,
+      } as OutputOptions,
     },
   ];
 });
@@ -40,16 +48,12 @@ export default defineConfig(() => {
 function inlineCssPlugin(): RolldownPlugin {
   return {
     name: 'inline-css',
-
     load: {
       filter: { id: /\.css\?inline$/ },
       async handler(id) {
         const actualId = id.replace(/\?inline$/, '');
         const data = await this.fs.readFile(actualId);
-        // TODO: Optimize Inlining
         const inlineCss = data.toString().replace(/\n/g, '').replace(/\s+/g, ' ').trim();
-        console.log('[LOAD] code', JSON.stringify(inlineCss));
-
         return `export default ${JSON.stringify(inlineCss)};`;
       },
     },
