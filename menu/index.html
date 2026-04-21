@@ -1,18 +1,34 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <link rel="stylesheet" href="menu.css">
-</head>
-<body>
-  <div class="plugin-body">
-    <h2>YouTube Playlist Adds</h2>
-    <div class="menu">
-      <button id="toggle">Loading...</button>
-      <button id="dump">Dump Data</button>
+  <head>
+    <link rel="stylesheet" href="menu.css" />
+  </head>
+  <body>
+    <div class="plugin-body">
+      <div class="menu">
+        <div class="toggle-container">
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle" />
+            <span class="slider"></span>
+          </label>
+          <span class="toggle-text">Off</span>
+        </div>
+
+        <div class="playlist-controls">
+          <input type="text" id="playlist-name" placeholder="Playlist name" />
+
+          <div class="button-row">
+            <button id="new-playlist">New</button>
+            <button id="load-playlist">Load</button>
+          </div>
+        </div>
+        <div class="button-row">
+          <button id="show">Show</button>
+          <button id="dump">Dump</button>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <script src="menu.js"></script>
-</body>
+    <script src="menu.js"></script>
+  </body>
 </html>
-

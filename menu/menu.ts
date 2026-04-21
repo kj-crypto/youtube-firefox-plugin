@@ -1,35 +1,34 @@
-const api = window.browser || window.chrome; // safety
+const toggleInput = document.getElementById('toggle') as HTMLInputElement;
+const toggleText = document.querySelector('.toggle-text') as HTMLSpanElement;
+const showBtn = document.getElementById('show') as HTMLButtonElement;
+const dumpBtn = document.getElementById('dump') as HTMLButtonElement;
+const playlistNameInput = document.getElementById('playlist-name') as HTMLInputElement;
+const newPlaylistBtn = document.getElementById('new-playlist') as HTMLButtonElement;
+const loadPlaylistBtn = document.getElementById('load-playlist') as HTMLButtonElement;
 
-const toggleBtn = document.getElementById("toggle");
+// Update toggle text
+const updateToggleText = (isChecked: boolean) => {
+  toggleText.textContent = isChecked ? 'On' : 'Off';
+};
 
-const updateButton = function(isRunning) {
-  if (isRunning) {
-    toggleBtn.textContent = "Stop";
-    toggleBtn.classList.add("running");
-  } else {
-    toggleBtn.textContent = "Start";
-    toggleBtn.classList.remove("running");
-  }
-}
-
-// Load initial state
-api.runtime.sendMessage({ action: "getState" }, res => {
-  if (api.runtime.lastError) {
-    console.error("getState error:", api.runtime.lastError);
-    toggleBtn.textContent = "Start";
-    return;
-  }
-  updateButton(res && res.running);
+toggleInput.addEventListener('change', () => {
+  const isChecked = toggleInput.checked;
+  updateToggleText(isChecked);
+  console.log('Update app state');
 });
 
-// Handle click
-toggleBtn.addEventListener("click", () => {
-  api.runtime.sendMessage({ action: "toggle" }, res => {
-    if (api.runtime.lastError) {
-      console.error("toggle error:", api.runtime.lastError);
-      return;
-    }
-    updateButton(res && res.running);
-  });
+showBtn.addEventListener('click', () => {
+  console.log('Show clicked');
 });
 
+dumpBtn.addEventListener('click', () => {
+  console.log('Dump clicked');
+});
+
+newPlaylistBtn.addEventListener('click', () => {
+  console.log('New playlist clicked');
+});
+
+loadPlaylistBtn.addEventListener('click', () => {
+  console.log('Load playlist clicked');
+});
