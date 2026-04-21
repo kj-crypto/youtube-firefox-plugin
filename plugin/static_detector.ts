@@ -32,9 +32,10 @@ export function staticsDetector(options: StaticDetectorOptions): Plugin {
   });
 
   const spawnWatcher = (source: string) => {
-    const child = spawn('bash', ['-c', `${watchCmd} ${source} ${outDir}`], {
+    const child = spawn(`bash -c '${watchCmd} ${source} ${outDir}'`, {
       stdio: ['ignore', 'pipe', 'pipe'],
       detached: true,
+      shell: true,
     });
 
     watchers.add(child);
@@ -74,7 +75,6 @@ export function staticsDetector(options: StaticDetectorOptions): Plugin {
     async buildStart() {
       if (!isWatch) {
         for (const source of sources) {
-          console.log(`Running build command: ${buildCmd} ${source} ${outDir}`);
           exec(`bash -c '${buildCmd} ${source} ${outDir}'`, (error, stdout, stderr) => {
             if (error) {
               logger.error(`Error: ${error}`);

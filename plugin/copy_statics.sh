@@ -9,6 +9,8 @@ set_exclude() {
 copy_statics() {
     local source_dir=$1
     local target_dir=$2
+    echo "[BASH] Run with pattern '$EXCLUDE'"
+
     find "$source_dir" -type f ! -regex $EXCLUDE | while read -r file; do
         dest="${file/#$source_dir/$target_dir}"
         mkdir -p $(dirname "$dest")
@@ -22,6 +24,7 @@ watch_files() {
     local source_dir=$1
     local target_dir=$2
     declare -A files_hash
+    echo "[BASH] Run with pattern '$EXCLUDE'"
 
     while true; do
         for file in $(find "$source_dir" -type f ! -regex $EXCLUDE); do
