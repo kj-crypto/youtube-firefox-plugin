@@ -84,6 +84,14 @@ input:checked + .slider:before {
   min-width: 30px;
 }
 
+.playlist-controls.disable {
+  opacity: 0.5;
+  pointer-events: none;
+  transition:
+    opacity 0.3s ease,
+    pointer-events 0.3s ease;
+}
+
 .playlist-controls {
   display: flex;
   flex-direction: column;
@@ -92,6 +100,9 @@ input:checked + .slider:before {
   border: 1px solid #444;
   border-radius: var(--radius);
   background: rgba(27, 48, 76, 0.3);
+  transition:
+    opacity 0.3s ease,
+    pointer-events 0.3s ease;
 }
 
 .playlist-controls input {
@@ -109,10 +120,21 @@ input:checked + .slider:before {
   color: #ccc;
 }
 
+.button-row.disable {
+  opacity: 0.5;
+  pointer-events: none;
+  transition:
+    opacity 0.3s ease,
+    pointer-events 0.3s ease;
+}
+
 .button-row {
   display: flex;
   gap: 8px;
   width: 100%;
+  transition:
+    opacity 0.3s ease,
+    pointer-events 0.3s ease;
 }
 
 .button-row button {

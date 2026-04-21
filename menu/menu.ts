@@ -5,15 +5,12 @@ const dumpBtn = document.getElementById('dump') as HTMLButtonElement;
 const playlistNameInput = document.getElementById('playlist-name') as HTMLInputElement;
 const newPlaylistBtn = document.getElementById('new-playlist') as HTMLButtonElement;
 const loadPlaylistBtn = document.getElementById('load-playlist') as HTMLButtonElement;
-
-// Update toggle text
-const updateToggleText = (isChecked: boolean) => {
-  toggleText.textContent = isChecked ? 'On' : 'Off';
-};
+const playlistControls = document.getElementById('playlist-controls') as HTMLDivElement;
 
 toggleInput.addEventListener('change', () => {
   const isChecked = toggleInput.checked;
-  updateToggleText(isChecked);
+  toggleText.textContent = isChecked ? 'On' : 'Off';
+  playlistControls.classList.toggle('disable', !isChecked);
   console.log('Update app state');
 });
 
