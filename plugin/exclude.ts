@@ -1,4 +1,4 @@
-import { DefaultLogger, ILogger } from './logger';
+import { DefaultLogger, type ILogger } from './logger';
 
 /**
  * Create exclude-pattern for `find -regex <exclude-pattern>`

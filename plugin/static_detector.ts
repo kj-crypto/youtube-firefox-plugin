@@ -1,4 +1,4 @@
-import { Plugin } from 'vite';
+import { type Plugin } from 'rolldown';
 import { ChildProcess, exec, spawn } from 'child_process';
 import path from 'path';
 import { Logger } from './logger';
@@ -7,24 +7,26 @@ import { ExcludePattern } from './exclude';
 type Signal = 'SIGINT' | 'SIGTERM' | 'SIGKILL' | 'exit';
 
 export type StaticDetectorOptions = {
-  sourceDirs?: string[];
-  excludeExtensions?: string[];
+  outDir: string;
+  sources?: string[];
+  excludes?: string[];
+  isWatch?: boolean;
 };
 
-export function staticsDetector(options: StaticDetectorOptions = {}): Plugin {
-  let isWatchMode = false;
-  let outDir = 'dist';
+export function staticsDetector(options: StaticDetectorOptions): Plugin {
+  let isWatch = options.isWatch || false;
+  let outDir = options.outDir;
   const watchers = new Set<ChildProcess>();
   const logger = new Logger('[static-bundler]');
   const fullPath = path.join(import.meta.dirname!, 'copy_statics.sh');
-  const excludeExtensions = new ExcludePattern(options.excludeExtensions || [], { logger });
-  const buildCmd = `source ${fullPath} && set_exclude "${excludeExtensions.getPattern()}" && copy_statics`;
-  const watchCmd = `source ${fullPath} && set_exclude "${excludeExtensions.getPattern()}" && watch_files`;
-  const sources = options.sourceDirs?.length ? options.sourceDirs : ['public'];
+  const excludeExtensions = new ExcludePattern(options.excludes || [], { logger });
+  const buildCmd = `source ${fullPath} && set_exclude '"${excludeExtensions.getPattern()}"' && copy_statics`;
+  const watchCmd = `source ${fullPath} && set_exclude '"${excludeExtensions.getPattern()}"' && watch_files`;
+  const sources = options.sources?.length ? options.sources : ['public'];
 
   ['SIGINT', 'SIGTERM', 'exit'].forEach((signal) => {
     process.on(signal, () => {
-      if (isWatchMode) killWatchers('SIGTERM');
+      if (isWatch) killWatchers('SIGTERM');
       process.exit(0);
     });
   });
@@ -68,14 +70,11 @@ export function staticsDetector(options: StaticDetectorOptions = {}): Plugin {
 
   return {
     name: 'statics-bundler',
-    configResolved(config) {
-      isWatchMode = config.command === 'build' && !!config.build.watch;
-      outDir = config.build.outDir;
-    },
 
     async buildStart() {
-      if (!isWatchMode) {
+      if (!isWatch) {
         for (const source of sources) {
+          console.log(`Running build command: ${buildCmd} ${source} ${outDir}`);
           exec(`bash -c '${buildCmd} ${source} ${outDir}'`, (error, stdout, stderr) => {
             if (error) {
               logger.error(`Error: ${error}`);

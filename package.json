@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "postinstall": "R=firefox-dev; out=firefox.tar.gz; mkdir -p $R && rm -rf $R/* && mkdir -p $R/profile && wget -O $R/$out 'https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=en-US' && cd $R && tar -xvf $out && rm $out && cd - ",
-    "build": "mkdir -p dist && rm -rf dist/* && vite build",
-    "dev": "trap 'kill 0' EXIT; vite build --watch & while ! [ -f ./dist/manifest.json ]; do :; done; web-ext run --verbose --reload --devtools -p ./firefox-dev/profile -f ./firefox-dev/firefox/firefox -s ./dist",
+    "build": "mkdir -p dist && rm -rf dist/* && rolldown build",
+    "dev": "trap 'kill 0' EXIT; tsc --noEmit --watch & rolldown -c rolldown.config.ts build --watch & while ! [ -f ./dist/manifest.json ]; do :; done; web-ext run --verbose --reload --devtools -p ./firefox-dev/profile -f ./firefox-dev/firefox/firefox -s ./dist",
     "check": "tsc --noEmit && prettier --check .",
     "fix": "eslint --no-config-lookup --ext '.ts' --fix . && prettier --write ."
   },
