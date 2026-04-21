@@ -1,0 +1,46 @@
+/* just for dev */
+.plugin-body {
+  width: 400px;
+}
+
+:root {
+  --bg-dark: #0f0f0f;
+  --bg-mid: #1b304c;
+  --bg-light: #6985ad;
+  --radius: 8px;
+  --padding: 10px;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-dark);
+  color: white;
+  font-family: sans-serif;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: var(--padding);
+}
+
+button {
+  background: var(--bg-mid);
+  border: none;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: var(--bg-light);
+}
+
+/* Running state */
+button.running {
+  background: var(--bg-light);
+}
+
