@@ -70,6 +70,7 @@ class Injector {
   constructor(size: number = 28, label: string = 'Add to playlist') {
     this.container = document.querySelector('div#container.style-scope.ytd-masthead') as HTMLElement | null;
     this.icon = createIconButton(size, label, this.elementID);
+    this.apply = this.apply.bind(this); // bind to avoid context issues in mutation observer
   }
 
   private isBlocked(): boolean {
