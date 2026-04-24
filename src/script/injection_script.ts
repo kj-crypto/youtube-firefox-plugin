@@ -1,5 +1,5 @@
 // @ts-ignore
-import inlineCss from './style.css?inline';
+import inlineCss from './styles.css?inline';
 
 function createIcon(size: number = 24) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
