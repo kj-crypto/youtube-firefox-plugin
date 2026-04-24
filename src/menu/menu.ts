@@ -1,3 +1,5 @@
+import { initialize } from '../initialize_session';
+
 const toggleInput = document.getElementById('toggle') as HTMLInputElement;
 const toggleText = document.querySelector('.toggle-text') as HTMLSpanElement;
 const showBtn = document.getElementById('show') as HTMLButtonElement;
@@ -24,6 +26,7 @@ dumpBtn.addEventListener('click', () => {
 
 newPlaylistBtn.addEventListener('click', () => {
   console.log('New playlist clicked');
+  initialize(['eFtiwNUDIcs', 'B_vatDn6G4g', 'YP3W-E0OamU'], 'Custom name from menu');
 });
 
 loadPlaylistBtn.addEventListener('click', () => {
