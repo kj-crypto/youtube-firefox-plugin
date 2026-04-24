@@ -96,3 +96,15 @@ new MutationObserver(injector.apply).observe(document.body, {
   childList: true,
   subtree: true,
 });
+
+function cleanup() {
+  ['div#chat-container', 'div#donation-shelf', 'div#related'].forEach((selector: string) => {
+    document.querySelector(selector)?.remove();
+  });
+}
+
+cleanup();
+new MutationObserver(cleanup).observe(document.body, {
+  childList: true,
+  subtree: true,
+});
