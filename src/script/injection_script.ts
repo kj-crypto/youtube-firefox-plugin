@@ -1,5 +1,6 @@
 // @ts-ignore
 import inlineCss from './styles.css?inline';
+import { Message, videosChangeMessage } from '../menu/app_state';
 
 function createIcon(size: number = 24) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -103,8 +104,64 @@ function cleanup() {
   });
 }
 
-cleanup();
-new MutationObserver(cleanup).observe(document.body, {
+// cleanup();
+// new MutationObserver(cleanup).observe(document.body, {
+//   childList: true,
+//   subtree: true,
+// });
+
+class PlayListObserver {
+  private playlistSize = 0;
+  constructor() {
+    this.updateAppState = this.updateAppState.bind(this);
+  }
+
+  retrieveVideoIds(rootNode: Element): string[] {
+    type PolymerElement = Element & { data: Record<string, any> };
+    const children = Array.from(rootNode.children || []) as PolymerElement[];
+    const regexExp = /watch\?v=([a-zA-Z0-9_\-]+)&/;
+    let videoIds = [] as string[];
+
+    for (const child of children) {
+      const a = child.querySelector('a');
+      const match = a?.href.match(regexExp);
+      if (match && match[1]) {
+        videoIds.push(match[1]);
+      }
+    }
+    return videoIds;
+  }
+
+  checkState() {
+    const watchModePlaylistContainer = document.querySelector('ytd-playlist-panel-renderer #items');
+    const playlistModePlaylistContainer = document.querySelector('div#contents.ytd-playlist-video-list-renderer');
+    const playlistSize = watchModePlaylistContainer?.children?.length || 0;
+    const playlistModePlaylistSize = playlistModePlaylistContainer?.children?.length || 0;
+
+    // Pure playlist view case
+    if (playlistSize === 0 && playlistModePlaylistSize > 0) {
+      return { triggerUpdate: true, rootNode: playlistModePlaylistContainer! };
+    }
+    if (playlistSize !== this.playlistSize) {
+      this.playlistSize = playlistSize;
+      return { triggerUpdate: true, rootNode: watchModePlaylistContainer! };
+    }
+    return { triggerUpdate: false };
+  }
+
+  updateAppState() {
+    const { triggerUpdate, rootNode } = this.checkState();
+    if (!triggerUpdate) return;
+    const videoIds = this.retrieveVideoIds(rootNode!);
+    browser.runtime.sendMessage({
+      type: videosChangeMessage,
+      payload: { videoIds },
+    } as Message);
+  }
+}
+
+const playlistObserver = new PlayListObserver();
+new MutationObserver(playlistObserver.updateAppState).observe(document.body, {
   childList: true,
   subtree: true,
 });

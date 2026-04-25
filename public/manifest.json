@@ -14,5 +14,5 @@
   "icons": {
     "48": "icons/icon-48.png"
   },
-  "permissions": ["webRequest", "webRequestBlocking", "tabs", "storage", "activeTab", "https://*/*"]
+  "permissions": ["webRequest", "webRequestBlocking", "tabs", "storage", "activeTab", "https://*/*", "downloads"]
 }

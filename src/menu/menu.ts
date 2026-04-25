@@ -1,4 +1,6 @@
 import { initialize } from '../initialize_session';
+import { appState, showPlaylistMessage, savePlaylistMessage } from './app_state';
+import { Playlist } from './playlist';
 
 const toggleInput = document.getElementById('toggle') as HTMLInputElement;
 const toggleText = document.querySelector('.toggle-text') as HTMLSpanElement;
@@ -17,16 +19,21 @@ toggleInput.addEventListener('change', () => {
 });
 
 showBtn.addEventListener('click', () => {
-  console.log('Show clicked');
+  browser.runtime.sendMessage({ type: showPlaylistMessage });
+  window.close();
 });
 
 dumpBtn.addEventListener('click', () => {
   console.log('Dump clicked');
+  browser.runtime.sendMessage({ type: savePlaylistMessage });
+  window.close();
 });
 
 newPlaylistBtn.addEventListener('click', () => {
   console.log('New playlist clicked');
-  initialize(['eFtiwNUDIcs', 'B_vatDn6G4g', 'YP3W-E0OamU'], 'Custom name from menu');
+  const playlist = new Playlist('Custom name from menu', ['eFtiwNUDIcs', 'B_vatDn6G4g', 'YP3W-E0OamU']);
+  appState.playlists = [playlist];
+  initialize(playlist.getVideoIds(), playlist.getName());
 });
 
 loadPlaylistBtn.addEventListener('click', () => {
