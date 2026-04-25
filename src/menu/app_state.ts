@@ -2,7 +2,7 @@ import { Playlist } from './playlist';
 
 export const appState = {
   isPluginActive: true,
-  playlists: [new Playlist('')],
+  playlists: [] as Playlist[],
   playlistIndex: 0,
 
   setVideoIds(videoIds: string[]) {

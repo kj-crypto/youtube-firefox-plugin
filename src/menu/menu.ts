@@ -31,9 +31,10 @@ dumpBtn.addEventListener('click', () => {
 
 newPlaylistBtn.addEventListener('click', () => {
   console.log('New playlist clicked');
-  const playlist = new Playlist('Custom name from menu', ['eFtiwNUDIcs', 'B_vatDn6G4g', 'YP3W-E0OamU']);
-  appState.playlists = [playlist];
-  initialize(playlist.getVideoIds(), playlist.getName());
+  const playlistName = playlistNameInput.value;
+  const playlist = new Playlist(playlistName);
+  appState.playlists.push(playlist);
+  initialize(playlistName);
 });
 
 loadPlaylistBtn.addEventListener('click', () => {

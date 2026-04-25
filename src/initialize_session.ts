@@ -3,7 +3,7 @@ import { urlJoin, validateResponse } from './utils';
 
 const origin = 'https://www.youtube.com';
 
-export function initialize(videoIds: string[], playlistTitle: string) {
+export function initialize(playlistTitle: string, videoIds?: string[]) {
   let resolveYtCredentials: (payload: Payload) => void;
   const ytCredentialsPromise = new Promise<Payload>((resolve) => {
     resolveYtCredentials = resolve;
@@ -65,7 +65,7 @@ export function initialize(videoIds: string[], playlistTitle: string) {
           },
         },
         title: playlistTitle,
-        videoIds: videoIds,
+        videoIds: videoIds || [],
         params: 'CAQ%3D',
       }),
     });
@@ -73,8 +73,10 @@ export function initialize(videoIds: string[], playlistTitle: string) {
     const data = await response.json();
     const playlistId = data.playlistId || '';
     console.log('PlayListID ', playlistId);
-    const targetUrl = urlJoin(origin, `/playlist?list=${playlistId}`);
-    browser.tabs.update(tabId, { url: targetUrl, active: true });
+    const targetUrl = urlJoin(origin, (!videoIds || videoIds.length === 0) ? "" : `/playlist?list=${playlistId}`);
+    await browser.tabs.update(tabId, { url: targetUrl, active: true });
+    // TODO: send message here
+    // browser.tabs.;
   }
 
   process()
