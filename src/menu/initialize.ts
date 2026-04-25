@@ -1,9 +1,8 @@
-import { Message, Payload, messageType, code, payloadSchema } from './script/startup_script';
-import { urlJoin, validateResponse } from './utils';
+import { Message, Payload, messageType, code, payloadSchema } from '../script/startup_script';
 
 const origin = 'https://www.youtube.com';
 
-export function initialize(playlistTitle: string, videoIds?: string[]) {
+export function initializePlaylist(playlistTitle: string, videoIds?: string[]) {
   let resolveYtCredentials: (payload: Payload) => void;
   const ytCredentialsPromise = new Promise<Payload>((resolve) => {
     resolveYtCredentials = resolve;
@@ -82,4 +81,19 @@ export function initialize(playlistTitle: string, videoIds?: string[]) {
   process()
     .then(() => {})
     .catch((err) => console.error(err));
+}
+
+function urlJoin(...parts: string[]) {
+  return parts
+    .map((part) => part.replace(/\/{2,}/, '/').replace(/(^\/|\/$)/, ''))
+    .join('/')
+    .replace(/([a-z]+:)\//, '$1//');
+}
+
+function validateResponse(response: Record<string, any>, schema: Record<string, any>) {
+  for (const key of Object.keys(schema)) {
+    if (!response[key] || response[key] === '') {
+      console.log('Response missing ', key);
+    }
+  }
 }

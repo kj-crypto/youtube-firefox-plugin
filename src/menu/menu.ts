@@ -1,5 +1,5 @@
-import { initialize } from '../initialize_session';
 import { appState, showPlaylistMessage, savePlaylistMessage } from './app_state';
+import { initializePlaylist } from './initialize';
 import { Playlist } from './playlist';
 
 const toggleInput = document.getElementById('toggle') as HTMLInputElement;
@@ -34,7 +34,7 @@ newPlaylistBtn.addEventListener('click', () => {
   const playlistName = playlistNameInput.value;
   const playlist = new Playlist(playlistName);
   appState.playlists.push(playlist);
-  initialize(playlistName);
+  initializePlaylist(playlistName);
 });
 
 loadPlaylistBtn.addEventListener('click', () => {
