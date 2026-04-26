@@ -42,6 +42,14 @@ export default defineConfig((_): RolldownOptions[] => {
         ...outputOptions,
       } as OutputOptions,
     },
+    {
+      input: 'src/script/credentials_retriever.ts',
+      output: {
+        file: 'dist/credentials_retriever.js',
+        format: 'iife',
+        ...outputOptions,
+      } as OutputOptions,
+    },
   ];
 });
 

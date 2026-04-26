@@ -18,10 +18,15 @@ export type Message = {
   payload: Payload;
 };
 
-function sendStates() {
+/**
+ * This function must be executed in webpage context to retrieve credentials
+ */
+function sendCredentials() {
+  console.log('+++ send state started');
   const eomData = (window.ytcfg?.data_?.EOM_VISITOR_DATA ?? '') as string;
   const clientVersion = (window.ytcfg?.data_?.INNERTUBE_CLIENT_VERSION ?? '') as string;
   const userAgent = (window.ytcfg?.data_?.INNERTUBE_CONTEXT?.client?.userAgent ?? '') as string;
+  console.log('+++ send state', { eomData, clientVersion, userAgent });
   window.postMessage(
     {
       type: messageType,
@@ -35,21 +40,30 @@ function sendStates() {
   );
 }
 
-function setup_script() {
+function inject_script() {
   window.addEventListener('message', (event) => {
     if (event.source !== window) return;
     if (event.data.type === messageType) {
+      console.log('+++ receive message from webpage script', event.data, 'sending to background');
       browser.runtime.sendMessage({
         ...event.data,
       });
     }
   });
 
+  const code = `${sendCredentials.toString()}\n\n${sendCredentials.name}();`.replaceAll(
+    'messageType',
+    `'${messageType}'`
+  );
+  console.log('Try to inject script:');
+  console.log(code);
   const script = document.createElement('script');
-  script.textContent = `<script-placeholder>`;
+  script.textContent = code;
   document.documentElement.appendChild(script);
 }
 
-export const code = `${setup_script.toString()}\n\n${setup_script.name}();`
-  .replace('<script-placeholder>', `(${sendStates.toString()})();`)
-  .replaceAll('messageType', `'${messageType}'`);
+inject_script();
+new MutationObserver(inject_script).observe(document.body, {
+  childList: true,
+  subtree: true,
+});

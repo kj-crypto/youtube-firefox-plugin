@@ -8,7 +8,8 @@ const domainName = 'https://www.youtube.com';
 browser.tabs.onUpdated.addListener((tabId: number, changeInfo: TabsOnUpdatedChangeInfo, tab: Tab) => {
   if (appState.isPluginActive && tab.url?.startsWith(domainName) && changeInfo.status === 'complete') {
     browser.tabs.executeScript(tabId, {
-      file: 'injection_script.js',
+      // file: 'injection_script.js',
+      file: 'credentials_retriever.js',
     });
   }
 });
