@@ -4,6 +4,7 @@ export const appState = {
   isPluginActive: true,
   playlists: [] as Playlist[],
   playlistIndex: 0,
+  youtubePlaylistId: null as string | null,
 
   setVideoIds(videoIds: string[]) {
     this.playlists[this.playlistIndex].setVideoIds(videoIds);
@@ -15,6 +16,10 @@ export const appState = {
       obj[this.playlists[i].getName()] = i;
     }
     return obj;
+  },
+
+  getCurrentPlaylistName() {
+    return this.playlists[this.playlistIndex].getName();
   },
 
   saveToStorage() {
@@ -55,3 +60,5 @@ export const savePlaylistMessage = 'SAVE_PLAYLIST_TO_FILE';
 export const playlistMetaUpdateMessage = 'UPDATE_QUEUE_ID_OR_NAME';
 export const createNewPlaylistMessage = 'CREATE_NEW_PLAYLIST';
 export const injectCredentialsRetrieverMessage = 'INJECT_CREDENTIALS_RETRIEVER';
+export const loadPlaylistMessage = 'LOAD_PLAYLIST';
+export const appToggleButtonMessage = 'TOGGLE_PLUGIN_BUTTON';

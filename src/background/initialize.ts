@@ -1,8 +1,7 @@
 import { generateInjectCode } from '../script/credentials_retriever';
 import { credentialsSchema } from '../script/types';
-import { playlistMetaUpdateMessage } from './app_state';
 
-const origin = 'https://www.youtube.com';
+export const origin = 'https://www.youtube.com';
 
 export async function initializePlaylist(playlistTitle: string, videoIds?: string[]) {
   console.log('proccess started');
@@ -60,11 +59,10 @@ export async function initializePlaylist(playlistTitle: string, videoIds?: strin
   });
 
   const data = await response.json();
-  const playlistId = data.playlistId || '';
+  const playlistId = (data.playlistId || '') as string;
   console.log('PlayListID ', playlistId);
   const targetUrl = urlJoin(origin, !videoIds || videoIds.length === 0 ? '' : `/playlist?list=${playlistId}`);
-  await browser.tabs.update(tabId, { url: targetUrl, active: true });
-  browser.tabs.sendMessage(tabId, { type: playlistMetaUpdateMessage, payload: { playlistId, playlistTitle } });
+  return { playlistId, targetUrl, tabId };
 }
 
 function urlJoin(...parts: string[]) {

@@ -5,7 +5,7 @@ export default defineConfig((_): RolldownOptions[] => {
   const isWatch = process.argv.includes('--watch');
   const outputOptions = {
     sourcemap: isWatch ? 'inline' : false,
-    minify: !isWatch,
+    minify: isWatch ? 'dce-only' : true,
   };
 
   return [
@@ -18,7 +18,7 @@ export default defineConfig((_): RolldownOptions[] => {
           isWatch,
         }),
       ],
-      input: 'src/background.ts',
+      input: 'src/background/background.ts',
       output: {
         file: 'dist/background.js',
         format: 'esm',
@@ -39,14 +39,6 @@ export default defineConfig((_): RolldownOptions[] => {
       output: {
         file: 'dist/menu/menu.js',
         format: 'esm',
-        ...outputOptions,
-      } as OutputOptions,
-    },
-    {
-      input: 'src/script/credentials_retriever.ts',
-      output: {
-        file: 'dist/credentials_retriever.js',
-        format: 'iife',
         ...outputOptions,
       } as OutputOptions,
     },

@@ -7,12 +7,12 @@ declare global {
 }
 
 export const credentialsRetrieverMessage = 'YT_CFG_CREDENTIALS_DATA';
-export const credentialSchema = {
+export const credentialsSchema = {
   eomData: '',
   clientVersion: '',
   userAgent: '',
 };
-export type Credentials = typeof credentialSchema;
+export type Credentials = typeof credentialsSchema;
 export type Message = {
   type: string;
   credentials: Credentials;

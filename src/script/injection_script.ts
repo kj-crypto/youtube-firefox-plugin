@@ -1,6 +1,12 @@
 // @ts-ignore
 import inlineCss from './styles.css?inline';
-import { Message, videosChangeMessage } from '../menu/app_state';
+import {
+  Message,
+  videosChangeMessage,
+  playlistMetaUpdateMessage,
+  createNewPlaylistMessage,
+} from '../background/app_state';
+import { addToQueue } from './innertube_commands';
 
 function createIcon(size: number = 24) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -67,6 +73,8 @@ class Injector {
   private elementID = 'my-icon-btn' as string;
   private container: HTMLElement | null;
   private icon: HTMLElement;
+  private queueId: string | null = null;
+  private playlistName: string = '';
 
   constructor(size: number = 28, label: string = 'Add to playlist') {
     this.container = document.querySelector('div#container.style-scope.ytd-masthead') as HTMLElement | null;
@@ -86,7 +94,24 @@ class Injector {
     const center = this.container?.querySelector('div#center');
     setStyle(this.elementID);
     center?.prepend(this.icon);
+    this.icon.onclick = () => {
+      console.log('Add ++ clicked', window.location.href);
+      const videoId = retrieveVideoIdFromUrl(window.location.href);
+      console.log('+++ Video ID', videoId);
+      if (!this.queueId) {
+        browser.runtime.sendMessage({ type: createNewPlaylistMessage, payload: { videoId } });
+      }
+      // if (videoId) addToQueue(videoId, this.queueId);
+
+      const code = `(${addToQueue.toString()}\n\n${addToQueue.name}(${videoId}, ${this.queueId});)()`;
+      console.log(code);
+    };
     this.block();
+  }
+
+  updatePlaylist(queueId: string, name: string) {
+    this.queueId = queueId;
+    this.playlistName = name;
   }
 }
 
@@ -96,6 +121,16 @@ injector.apply();
 new MutationObserver(injector.apply).observe(document.body, {
   childList: true,
   subtree: true,
+});
+
+console.log('+++Content script loaded');
+
+browser.runtime.onMessage.addListener((message: Message) => {
+  console.log('+++ Injected script message received', message);
+  if (message.type === playlistMetaUpdateMessage) {
+    console.log('++ Update playlist', message);
+    injector.updatePlaylist(message.payload.playlistId, message.payload.playlistTitle);
+  }
 });
 
 function cleanup() {
@@ -110,6 +145,13 @@ function cleanup() {
 //   subtree: true,
 // });
 
+function retrieveVideoIdFromUrl(url: string) {
+  const regexExp = /watch\?v=([a-zA-Z0-9_\-]+)(&|$)/;
+  const match = url.match(regexExp);
+  if (match && match[1]) return match[1];
+  return null;
+}
+
 class PlayListObserver {
   private playlistSize = 0;
   constructor() {
@@ -119,15 +161,12 @@ class PlayListObserver {
   retrieveVideoIds(rootNode: Element): string[] {
     type PolymerElement = Element & { data: Record<string, any> };
     const children = Array.from(rootNode.children || []) as PolymerElement[];
-    const regexExp = /watch\?v=([a-zA-Z0-9_\-]+)&/;
     let videoIds = [] as string[];
 
     for (const child of children) {
       const a = child.querySelector('a');
-      const match = a?.href.match(regexExp);
-      if (match && match[1]) {
-        videoIds.push(match[1]);
-      }
+      const videoId = retrieveVideoIdFromUrl(a?.href || '');
+      if (videoId) videoIds.push(videoId);
     }
     return videoIds;
   }
@@ -153,10 +192,10 @@ class PlayListObserver {
     const { triggerUpdate, rootNode } = this.checkState();
     if (!triggerUpdate) return;
     const videoIds = this.retrieveVideoIds(rootNode!);
-    browser.runtime.sendMessage({
-      type: videosChangeMessage,
-      payload: { videoIds },
-    } as Message);
+    // browser.runtime.sendMessage({
+    //   type: videosChangeMessage,
+    //   payload: { videoIds },
+    // } as Message);
   }
 }
 

@@ -1,6 +1,9 @@
-import { appState, showPlaylistMessage, savePlaylistMessage } from './app_state';
-import { initializePlaylist } from './initialize';
-import { Playlist } from './playlist';
+import {
+  appToggleButtonMessage,
+  showPlaylistMessage,
+  savePlaylistMessage,
+  createNewPlaylistMessage,
+} from '../background/app_state';
 
 const toggleInput = document.getElementById('toggle') as HTMLInputElement;
 const toggleText = document.querySelector('.toggle-text') as HTMLSpanElement;
@@ -15,7 +18,7 @@ toggleInput.addEventListener('change', () => {
   const isChecked = toggleInput.checked;
   toggleText.textContent = isChecked ? 'On' : 'Off';
   playlistControls.classList.toggle('disable', !isChecked);
-  console.log('Update app state');
+  browser.runtime.sendMessage({ type: appToggleButtonMessage, payload: { enabled: isChecked } });
 });
 
 showBtn.addEventListener('click', () => {
@@ -32,9 +35,8 @@ dumpBtn.addEventListener('click', () => {
 newPlaylistBtn.addEventListener('click', () => {
   console.log('New playlist clicked');
   const playlistName = playlistNameInput.value;
-  const playlist = new Playlist(playlistName);
-  appState.playlists.push(playlist);
-  initializePlaylist(playlistName);
+  browser.runtime.sendMessage({ type: createNewPlaylistMessage, payload: { name: playlistName } });
+  window.close();
 });
 
 loadPlaylistBtn.addEventListener('click', () => {
