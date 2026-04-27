@@ -1,4 +1,5 @@
-import { appState, Message, savePlaylistMessage, showPlaylistMessage } from './menu/app_state';
+import { appState, injectCredentialsRetrieverMessage, Message, savePlaylistMessage, showPlaylistMessage } from './menu/app_state';
+import { Credentials, credentialsRetrieverMessage, Message as CredsMessage } from './script/types';
 
 type Tab = browser.tabs.Tab;
 type TabsOnUpdatedChangeInfo = browser.tabs._OnUpdatedChangeInfo;
@@ -8,13 +9,13 @@ const domainName = 'https://www.youtube.com';
 browser.tabs.onUpdated.addListener((tabId: number, changeInfo: TabsOnUpdatedChangeInfo, tab: Tab) => {
   if (appState.isPluginActive && tab.url?.startsWith(domainName) && changeInfo.status === 'complete') {
     browser.tabs.executeScript(tabId, {
-      // file: 'injection_script.js',
-      file: 'credentials_retriever.js',
+      // file: appState.sessionCredentials ? 'injection_script.js' : 'credentials_retriever.js',
+      file: 'injection_script.js',
     });
   }
 });
 
-browser.runtime.onMessage.addListener((message: Message) => {
+browser.runtime.onMessage.addListener((message: Message & CredsMessage) => {
   if (message.type === showPlaylistMessage) {
     const json = JSON.stringify(appState.playlists);
     const blob = new Blob([json], { type: 'application/json' });
@@ -31,4 +32,8 @@ browser.runtime.onMessage.addListener((message: Message) => {
       saveAs: false,
     });
   }
+  // if (message.type === credentialsRetrieverMessage) {
+  //   console.log('Credentials retrieved', message.credentials);
+  //   appState.sessionCredentials = message.credentials as Credentials;
+  // }
 });

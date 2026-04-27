@@ -1,22 +1,4 @@
-export {};
-
-declare global {
-  interface Window {
-    ytcfg?: Record<string, any>;
-  }
-}
-
-export const messageType = 'YT_CFG_DATA';
-export const payloadSchema = {
-  eomData: '',
-  clientVersion: '',
-  userAgent: '',
-};
-export type Payload = typeof payloadSchema;
-export type Message = {
-  type: string;
-  payload: Payload;
-};
+import { credentialsRetrieverMessage, Message } from './types';
 
 /**
  * This function must be executed in webpage context to retrieve credentials
@@ -29,8 +11,8 @@ function sendCredentials() {
   console.log('+++ send state', { eomData, clientVersion, userAgent });
   window.postMessage(
     {
-      type: messageType,
-      payload: {
+      type: credentialsRetrieverMessage,
+      credentials: {
         eomData,
         clientVersion,
         userAgent,
@@ -40,30 +22,26 @@ function sendCredentials() {
   );
 }
 
-function inject_script() {
-  window.addEventListener('message', (event) => {
-    if (event.source !== window) return;
-    if (event.data.type === messageType) {
-      console.log('+++ receive message from webpage script', event.data, 'sending to background');
-      browser.runtime.sendMessage({
-        ...event.data,
-      });
-    }
+function inject_script(timeout: number) {
+  return new Promise((resolve, reject) => {
+    window.addEventListener('message', function handler(event) {
+      if (event.source !== window) return;
+      if (event.data.type === credentialsRetrieverMessage) {
+        console.log('+++ receive message from webpage script', event.data, 'promise resolving');
+        window.removeEventListener('message', handler);
+        resolve(event.data.credentials);
+      }
+    });
+    const script = document.createElement('script');
+    script.textContent = '<code-placeholder>';
+    document.documentElement.appendChild(script);
+    script.remove();
+    setTimeout(() => reject(new Error('Credentials retrieval timeout')), timeout);
   });
-
-  const code = `${sendCredentials.toString()}\n\n${sendCredentials.name}();`.replaceAll(
-    'messageType',
-    `'${messageType}'`
-  );
-  console.log('Try to inject script:');
-  console.log(code);
-  const script = document.createElement('script');
-  script.textContent = code;
-  document.documentElement.appendChild(script);
 }
 
-inject_script();
-new MutationObserver(inject_script).observe(document.body, {
-  childList: true,
-  subtree: true,
-});
+export function generateInjectCode(timeout: number) {
+  return `(${inject_script.toString()})(${timeout})`
+    .replace('"<code-placeholder>"', `\`(${sendCredentials.toString()})()\``)
+    .replace('credentialsRetrieverMessage', `"${credentialsRetrieverMessage}"`);
+}
