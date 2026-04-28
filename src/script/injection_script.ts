@@ -73,9 +73,11 @@ class Injector {
   private elementID = 'my-icon-btn' as string;
   private container: HTMLElement | null;
   private icon: HTMLElement;
-  private queueId: string | null = null;
-  private playlistName: string = '';
-
+  private playlist = {
+    id: null as string | null,
+    title: '',
+    videoIds: [] as string[]
+  }
   constructor(size: number = 28, label: string = 'Add to playlist') {
     this.container = document.querySelector('div#container.style-scope.ytd-masthead') as HTMLElement | null;
     this.icon = createIconButton(size, label, this.elementID);
@@ -94,24 +96,36 @@ class Injector {
     const center = this.container?.querySelector('div#center');
     setStyle(this.elementID);
     center?.prepend(this.icon);
+
     this.icon.onclick = () => {
       console.log('Add ++ clicked', window.location.href);
       const videoId = retrieveVideoIdFromUrl(window.location.href);
-      console.log('+++ Video ID', videoId);
-      if (!this.queueId) {
-        browser.runtime.sendMessage({ type: createNewPlaylistMessage, payload: { videoId } });
+      console.log('+++ Video ID', videoId, 'Queue ID', this.playlist.id);
+      if (!videoId || !this.playlist.id) {
+        console.warn("[Playlist Addon] Cannot add video to playlist - video ID or playlist ID is not set");
+        return;
       }
-      // if (videoId) addToQueue(videoId, this.queueId);
-
-      const code = `(${addToQueue.toString()}\n\n${addToQueue.name}(${videoId}, ${this.queueId});)()`;
+      if (this.playlist.videoIds.includes(videoId)) {
+        console.warn("[Playlist Addon] Video already in playlist");
+        return;
+      }
+      const code = `(${addToQueue.toString()})("${videoId}", "${this.playlist.id}")`;
       console.log(code);
+      const script = document.createElement('script');
+      script.textContent = code;
+      document.documentElement.appendChild(script);
+      setTimeout(() => script.remove(), 2_000);
+      this.playlist.videoIds.push(videoId);
+      browser.runtime.sendMessage({ type: videosChangeMessage, payload: { videoId } });
     };
+
     this.block();
   }
 
-  updatePlaylist(queueId: string, name: string) {
-    this.queueId = queueId;
-    this.playlistName = name;
+  updatePlaylist(playlistId: string, videoIds: string[], playlistTitle: string) {
+    this.playlist.id = playlistId;
+    this.playlist.title = playlistTitle;
+    this.playlist.videoIds = videoIds;
   }
 }
 
@@ -123,13 +137,12 @@ new MutationObserver(injector.apply).observe(document.body, {
   subtree: true,
 });
 
-console.log('+++Content script loaded');
-
 browser.runtime.onMessage.addListener((message: Message) => {
   console.log('+++ Injected script message received', message);
   if (message.type === playlistMetaUpdateMessage) {
-    console.log('++ Update playlist', message);
-    injector.updatePlaylist(message.payload.playlistId, message.payload.playlistTitle);
+    console.log('+++ Update playlist', message);
+    const {playlistId, playlistTitle, videoIds } = message.payload;
+    injector.updatePlaylist(playlistId, videoIds, playlistTitle);
   }
 });
 
@@ -139,11 +152,11 @@ function cleanup() {
   });
 }
 
-// cleanup();
-// new MutationObserver(cleanup).observe(document.body, {
-//   childList: true,
-//   subtree: true,
-// });
+cleanup();
+new MutationObserver(cleanup).observe(document.body, {
+  childList: true,
+  subtree: true,
+});
 
 function retrieveVideoIdFromUrl(url: string) {
   const regexExp = /watch\?v=([a-zA-Z0-9_\-]+)(&|$)/;
@@ -154,6 +167,8 @@ function retrieveVideoIdFromUrl(url: string) {
 
 class PlayListObserver {
   private playlistSize = 0;
+  private lastVideoIds = "";
+
   constructor() {
     this.updateAppState = this.updateAppState.bind(this);
   }
@@ -172,6 +187,7 @@ class PlayListObserver {
   }
 
   checkState() {
+    console.log("Checking state");
     const watchModePlaylistContainer = document.querySelector('ytd-playlist-panel-renderer #items');
     const playlistModePlaylistContainer = document.querySelector('div#contents.ytd-playlist-video-list-renderer');
     const playlistSize = watchModePlaylistContainer?.children?.length || 0;
@@ -192,15 +208,24 @@ class PlayListObserver {
     const { triggerUpdate, rootNode } = this.checkState();
     if (!triggerUpdate) return;
     const videoIds = this.retrieveVideoIds(rootNode!);
-    // browser.runtime.sendMessage({
-    //   type: videosChangeMessage,
-    //   payload: { videoIds },
-    // } as Message);
+    const currentVideoIds = JSON.stringify(videoIds);
+    if (currentVideoIds === this.lastVideoIds) return;
+    this.lastVideoIds = currentVideoIds;
+    console.log('[Playlist Addon] Changed Video IDs:', videoIds);
+    browser.runtime.sendMessage({
+      type: videosChangeMessage,
+      payload: { videoIds },
+    });
   }
 }
 
-const playlistObserver = new PlayListObserver();
-new MutationObserver(playlistObserver.updateAppState).observe(document.body, {
-  childList: true,
-  subtree: true,
-});
+if(window.location.href.startsWith("https://www.youtube.com/playlist?list=")) {
+
+  const playlistObserver = new PlayListObserver();
+  new MutationObserver(playlistObserver.updateAppState).observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+}
+
+console.log('[Playlist Addon] Content script loaded at', new Date().toISOString());

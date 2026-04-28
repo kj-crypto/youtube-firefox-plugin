@@ -3,6 +3,7 @@ import {
   showPlaylistMessage,
   savePlaylistMessage,
   createNewPlaylistMessage,
+  appState,
 } from '../background/app_state';
 
 const toggleInput = document.getElementById('toggle') as HTMLInputElement;
@@ -14,11 +15,15 @@ const newPlaylistBtn = document.getElementById('new-playlist') as HTMLButtonElem
 const loadPlaylistBtn = document.getElementById('load-playlist') as HTMLButtonElement;
 const playlistControls = document.getElementById('playlist-controls') as HTMLDivElement;
 
-toggleInput.addEventListener('change', () => {
+function checkToggle() {
   const isChecked = toggleInput.checked;
   toggleText.textContent = isChecked ? 'On' : 'Off';
   playlistControls.classList.toggle('disable', !isChecked);
-  browser.runtime.sendMessage({ type: appToggleButtonMessage, payload: { enabled: isChecked } });
+  return isChecked;
+}
+
+toggleInput.addEventListener('change', () => {
+  browser.runtime.sendMessage({ type: appToggleButtonMessage, payload: { enabled: checkToggle() } });
 });
 
 showBtn.addEventListener('click', () => {
@@ -41,4 +46,25 @@ newPlaylistBtn.addEventListener('click', () => {
 
 loadPlaylistBtn.addEventListener('click', () => {
   console.log('Load playlist clicked');
+  console.log(appState.getAllNames())
 });
+
+async function initialize() {
+  try {
+    await appState.updateFromStorage();
+
+    console.log("Initialized states", appState)
+    
+    if (appState.isPluginActive !== undefined) {
+      toggleInput.checked = appState.isPluginActive;
+      checkToggle();
+    }
+   
+    showBtn.classList.toggle("disabled", !appState.youtubePlaylistId);
+    
+  } catch (error) {
+    console.error('Popup initialization failed:', error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initialize);

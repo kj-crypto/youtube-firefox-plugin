@@ -27,10 +27,12 @@ export function addToQueue(videoId: string, playlistId: string) {
     },
   };
 
-  const functor = document.querySelector<PolymerElement>('ytd-app')?.resolveCommand;
-  console.log(functor);
-  if (!functor) console.log('++++ No function found');
-  functor?.(command);
+  const app = document.querySelector("ytd-app") as PolymerElement;
+    if (!app?.resolveCommand) {
+      console.error("[Playlist Addon] resolveCommand not found");
+    } else {
+      app?.resolveCommand?.call(app, command)
+    }
 }
 
 export function removeFromQueue(videoId: string, playlistId: string) {
@@ -78,6 +80,6 @@ export function clearQueue() {
   }
 }
 
-function getCurrentVideoId() {
-  return document.querySelector<PolymerElement>('ytd-app')?.data?.playerResponse?.videoDetails?.videoId;
+export function getCurrentVideoId() {
+  return document.querySelector<PolymerElement>('ytd-app')?.data?.playerResponse?.videoDetails?.videoId || [];
 }

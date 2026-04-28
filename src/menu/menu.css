@@ -10,6 +10,7 @@
   --accent: #4caf50;
   --radius: 8px;
   --padding: 10px;
+  --disable-opacity: 0.5;
 }
 
 body {
@@ -85,7 +86,7 @@ input:checked + .slider:before {
 }
 
 .playlist-controls.disable {
-  opacity: 0.5;
+  opacity: var(--disable-opacity);
   pointer-events: none;
   transition:
     opacity 0.3s ease,
@@ -121,7 +122,7 @@ input:checked + .slider:before {
 }
 
 .button-row.disable {
-  opacity: 0.5;
+  opacity: var(--disable-opacity);
   pointer-events: none;
   transition:
     opacity 0.3s ease,
@@ -161,4 +162,10 @@ input:focus {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-color: var(--accent);
+}
+
+button.disabled {
+  opacity: var(--disable-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
 }
