@@ -15,11 +15,16 @@
         </div>
 
         <div class="playlist-controls" id="playlist-controls">
-          <input type="text" id="playlist-name" placeholder="Playlist name" />
+          <div class="input-row">
+            <input type="text" id="playlist-name" placeholder="Playlist name" />
+            <button id="new-playlist" title="Create new playlist">New</button>
+          </div>
 
-          <div class="button-row">
-            <button id="new-playlist">New</button>
-            <button id="load-playlist">Load</button>
+          <div class="load-row">
+            <select id="playlist-select" title="Select playlist to load">
+              <option value="">Select playlist...</option>
+            </select>
+            <button id="load-playlist" title="Load selected playlist">Load</button>
           </div>
         </div>
         <div class="button-row">
