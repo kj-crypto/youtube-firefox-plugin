@@ -1,6 +1,9 @@
-/* just for dev */
+* {
+  box-sizing: border-box;
+}
+
 .plugin-body {
-  width: 200px;
+  width: 300px;
 }
 
 :root {
@@ -104,6 +107,7 @@ input:checked + .slider:before {
   transition:
     opacity 0.3s ease,
     pointer-events 0.3s ease;
+  width: 100%;
 }
 
 .playlist-controls input {
@@ -121,6 +125,27 @@ input:checked + .slider:before {
   color: #ccc;
 }
 
+.input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.load-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+.load-row select {
+  flex: 1;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid #333;
+  background: var(--bg-mid);
+  color: white;
+}
+
 .button-row.disable {
   opacity: var(--disable-opacity);
   pointer-events: none;
@@ -132,6 +157,7 @@ input:checked + .slider:before {
 .button-row {
   display: flex;
   gap: 8px;
+  padding: 0;
   width: 100%;
   transition:
     opacity 0.3s ease,
