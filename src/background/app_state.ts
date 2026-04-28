@@ -41,8 +41,13 @@ export const appState = {
   async updateFromStorage() {
     const result = await browser.storage.local.get(['isPluginActive', 'playlists', 'index']);
     this.isPluginActive = result.isPluginActive;
-    this.playlists = result.playlists;
-    this.playlistIndex = result.index;
+    if (result.playlists && Array.isArray(result.playlists)) {
+      this.playlists = result.playlists.map(Playlist.fromJSON);
+    }
+    else {
+      this.playlists = [];
+    }
+    this.playlistIndex = result.index || 0;
   },
 };
 

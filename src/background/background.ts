@@ -13,14 +13,14 @@ import { Playlist } from './playlist';
 type Tab = browser.tabs.Tab;
 type TabsOnUpdatedChangeInfo = browser.tabs._OnUpdatedChangeInfo;
 
-const shareState = {
-  youtubePlaylistId: null as string | null,
-}
+// const shareState = {
+//   youtubePlaylistId: null as string | null,
+// }
 
-type WindowWithShareState = Window & {
-  shareState?: typeof shareState;
-};
-(window as WindowWithShareState).shareState = shareState;
+// type WindowWithShareState = Window & {
+//   shareState?: typeof shareState;
+// };
+// (window as WindowWithShareState).shareState = shareState;
 
 browser.tabs.onUpdated.addListener((tabId: number, changeInfo: TabsOnUpdatedChangeInfo, tab: Tab) => {
   if (appState.isPluginActive && tab.url?.startsWith(origin) && changeInfo.status === 'complete') {
@@ -74,11 +74,12 @@ browser.runtime.onMessage.addListener((message: Message) => {
       console.log('Target URL', response.targetUrl);
 
       appState.youtubePlaylistId = response.playlistId;
-      shareState.youtubePlaylistId = response.playlistId;
+      // shareState.youtubePlaylistId = response.playlistId;
       appState.playlists.push(playlist);
       appState.playlistIndex = appState.playlists.length - 1;
 
       console.log('Updating tab ...');
+      browser.storage.session.set({ youtubePlaylistId: response.playlistId });
       browser.tabs.update(response.tabId, { url: response.targetUrl, active: true });
     });
   }
@@ -92,7 +93,8 @@ browser.runtime.onMessage.addListener((message: Message) => {
       appState.setVideoIds(message.payload.videoIds);
     }
 
-    browser.storage.local.set({ playlists: appState.playlists });
+    // browser.storage.local.set({ playlists: appState.playlists });
+    appState.saveToStorage();
   }
   return true;
 });

@@ -31,4 +31,8 @@ export class Playlist {
       videoIds: this.videoIds,
     };
   }
+
+  static fromJSON(data: {name: string, videoIds: string[]}) {
+    return new Playlist(data.name, data.videoIds);
+  }
 }

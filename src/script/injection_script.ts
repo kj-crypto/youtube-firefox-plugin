@@ -220,7 +220,6 @@ class PlayListObserver {
 }
 
 if(window.location.href.startsWith("https://www.youtube.com/playlist?list=")) {
-
   const playlistObserver = new PlayListObserver();
   new MutationObserver(playlistObserver.updateAppState).observe(document.body, {
     childList: true,

@@ -52,15 +52,17 @@ loadPlaylistBtn.addEventListener('click', () => {
 async function initialize() {
   try {
     await appState.updateFromStorage();
-
     console.log("Initialized states", appState)
+    const { youtubePlaylistId } = await browser.storage.session.get("youtubePlaylistId");
+    console.log("Youtube playlist ID", youtubePlaylistId);
+
     
     if (appState.isPluginActive !== undefined) {
       toggleInput.checked = appState.isPluginActive;
       checkToggle();
     }
    
-    showBtn.classList.toggle("disabled", !appState.youtubePlaylistId);
+    showBtn.classList.toggle("disabled", !youtubePlaylistId);
     
   } catch (error) {
     console.error('Popup initialization failed:', error);
