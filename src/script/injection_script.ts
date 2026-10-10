@@ -7,6 +7,7 @@ import {
   createNewPlaylistMessage,
 } from '../background/app_state';
 import { addToQueue } from './innertube_commands';
+import { logger } from './utils/logger';
 
 function createIcon(size: number = 24) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -98,15 +99,15 @@ class Injector {
     center?.prepend(this.icon);
 
     this.icon.onclick = () => {
-      console.log('Add ++ clicked', window.location.href);
+      logger.log('Add button clicked', window.location.href);
       const videoId = retrieveVideoIdFromUrl(window.location.href);
-      console.log('+++ Video ID', videoId, 'Queue ID', this.playlist.id);
+      logger.log('Video ID', videoId, 'Queue ID', this.playlist.id);
       if (!videoId || !this.playlist.id) {
-        console.warn("[Playlist Addon] Cannot add video to playlist - video ID or playlist ID is not set");
+        logger.warn('Cannot add video to playlist - video ID or playlist ID is not set');
         return;
       }
       if (this.playlist.videoIds.includes(videoId)) {
-        console.warn("[Playlist Addon] Video already in playlist");
+        logger.warn('Video already in playlist');
         return;
       }
       const code = `(${addToQueue.toString()})("${videoId}", "${this.playlist.id}")`;
@@ -138,10 +139,10 @@ new MutationObserver(injector.apply).observe(document.body, {
 });
 
 browser.runtime.onMessage.addListener((message: Message) => {
-  console.log('+++ Injected script message received', message);
+  logger.log('Injected script message received', message);
   if (message.type === playlistMetaUpdateMessage) {
-    console.log('+++ Update playlist', message);
-    const {playlistId, playlistTitle, videoIds } = message.payload;
+    logger.log('Update playlist message', message);
+    const { playlistId, playlistTitle, videoIds } = message.payload;
     injector.updatePlaylist(playlistId, videoIds, playlistTitle);
   }
 });
@@ -167,7 +168,7 @@ function retrieveVideoIdFromUrl(url: string) {
 
 class PlayListObserver {
   private playlistSize = 0;
-  private lastVideoIds = "";
+  private lastVideoIds = '';
 
   constructor() {
     this.updateAppState = this.updateAppState.bind(this);
@@ -187,7 +188,7 @@ class PlayListObserver {
   }
 
   checkState() {
-    console.log("Checking state");
+    logger.log('Checking state ...');
     const watchModePlaylistContainer = document.querySelector('ytd-playlist-panel-renderer #items');
     const playlistModePlaylistContainer = document.querySelector('div#contents.ytd-playlist-video-list-renderer');
     const playlistSize = watchModePlaylistContainer?.children?.length || 0;
@@ -211,7 +212,7 @@ class PlayListObserver {
     const currentVideoIds = JSON.stringify(videoIds);
     if (currentVideoIds === this.lastVideoIds) return;
     this.lastVideoIds = currentVideoIds;
-    console.log('[Playlist Addon] Changed Video IDs:', videoIds);
+    logger.log('Changed Video IDs:', videoIds);
     browser.runtime.sendMessage({
       type: videosChangeMessage,
       payload: { videoIds },
@@ -219,7 +220,7 @@ class PlayListObserver {
   }
 }
 
-if(window.location.href.startsWith("https://www.youtube.com/playlist?list=")) {
+if (window.location.href.startsWith('https://www.youtube.com/playlist?list=')) {
   const playlistObserver = new PlayListObserver();
   new MutationObserver(playlistObserver.updateAppState).observe(document.body, {
     childList: true,
@@ -227,4 +228,4 @@ if(window.location.href.startsWith("https://www.youtube.com/playlist?list=")) {
   });
 }
 
-console.log('[Playlist Addon] Content script loaded at', new Date().toISOString());
+logger.log('Content script loaded at', new Date().toISOString());
