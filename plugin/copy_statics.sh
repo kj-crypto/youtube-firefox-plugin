@@ -23,20 +23,22 @@ copy_statics() {
 watch_files() {
     local source_dir=$1
     local target_dir=$2
-    declare -A files_hash
+    local sleep_time=$3
     echo "[BASH] Run with pattern '$EXCLUDE'"
 
+    local last_check_time="0"
     while true; do
-        for file in $(find "$source_dir" -type f ! -regex $EXCLUDE); do
-            hash_=$(sha256sum "$file" | cut -d' ' -f1)
-            if [[ "${files_hash[$file]}" != "$hash_" ]]; then
-                files_hash[$file]=$hash_
+        current_time=$(date +%s.%N)
+
+        find "$source_dir" -type f  -newermt "@$last_check_time" ! -regex $EXCLUDE | while read -r file; do
                 dest="${file/#$source_dir/$target_dir}"
-                mkdir -p $(dirname "$dest")
-                cp "$file" "$dest"
-                echo "Updated $file"
-            fi
+                # mkdir -p "$(dirname "$dest")"
+                # cp "$file" "$dests"
+                echo "Updated $file to $dest"
         done
+
+        last_check_time=$current_time
+        sleep $sleep_time
     done
 }
 

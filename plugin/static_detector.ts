@@ -4,6 +4,7 @@ import path from 'path';
 import { Logger } from './logger';
 import { ExcludePattern } from './exclude';
 
+const SLEEP_TIME = 1;
 type Signal = 'SIGINT' | 'SIGTERM' | 'SIGKILL' | 'exit';
 
 export type StaticDetectorOptions = {
@@ -32,7 +33,7 @@ export function staticsDetector(options: StaticDetectorOptions): Plugin {
   });
 
   const spawnWatcher = (source: string) => {
-    const child = spawn(`bash -c '${watchCmd} ${source} ${outDir}'`, {
+    const child = spawn(`bash -c '${watchCmd} ${source} ${outDir} ${SLEEP_TIME}'`, {
       stdio: ['ignore', 'pipe', 'pipe'],
       detached: true,
       shell: true,
